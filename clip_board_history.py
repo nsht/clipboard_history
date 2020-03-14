@@ -1,43 +1,44 @@
 from pynput import keyboard
+from pynput.keyboard import Key, Controller
 import pyperclip
+import pdb
+import copy
+import time
 
-# The currently active modifiers
-current = set()
-
-
-def on_press(key):
-    try:
-        if any([key in COMBO for COMBO in COMBINATIONS]):
-            current.add(key)
-            if any(all(k in current for k in COMBO) for COMBO in COMBINATIONS):
-                with open("clipboard_history.txt", "a") as data_file:
-                    data_file.write("\n")
-                    data_file.write(pyperclip.paste())
-    except AttributeError:
-        print("special key {0} pressed".format(key))
+paste_history = []
+kb = Controller()
 
 
-def on_release(key):
-    if any([key in COMBO for COMBO in COMBINATIONS]):
-        if key in current:
-            current.remove(key)
-    if key == keyboard.Key.esc:
-        # Stop listener
-        # return False
-        pass
+class Paste:
+    def __init__(self, number=1):
+        self.number = number - 1
+
+    def paste_data(self):
+        if not paste_history:
+            return
+        try:
+            data = paste_history[self.number]
+        except IndexError as e:
+            print(e)
+            return
+        pyperclip.copy(data)
+
+        kb.press(keyboard.Key.ctrl.value)
+        kb.press("v")
+        kb.release("v")
+        kb.release(keyboard.Key.ctrl.value)
 
 
-COMBINATIONS = [
-    {keyboard.Key.ctrl, keyboard.KeyCode(char="c")},
-    {keyboard.Key.ctrl, keyboard.KeyCode(char="C")},
-    {keyboard.Key.ctrl, keyboard.KeyCode(char="x")},
-    {keyboard.Key.ctrl, keyboard.KeyCode(char="X")},
-]
+def copy_data():
+    paste_history.append(pyperclip.paste())
+    print(pyperclip.paste())
+    with open("clipboard_history.txt", "a") as data_file:
+        data_file.write("\n")
+        data_file.write(pyperclip.paste())
 
 
-# Collect events until released
-with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-    listener.join()
-
-# listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-# listener.start()
+hotkeys = {"<ctrl>+c": copy_data}
+paste_hotkeys = {f"<ctrl>+{x}": Paste(x).paste_data for x in range(0, 10)}
+hotkeys.update(paste_hotkeys)
+with keyboard.GlobalHotKeys(hotkeys) as h:
+    h.join()
