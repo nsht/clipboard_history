@@ -29,6 +29,17 @@ class Paste:
         kb.release(keyboard.Key.ctrl.value)
 
 
+def paste_all():
+    if not paste_history:
+        return
+    data = "\n".join(paste_history)
+    pyperclip.copy(data)
+    kb.press(keyboard.Key.ctrl.value)
+    kb.press("v")
+    kb.release("v")
+    kb.release(keyboard.Key.ctrl.value)
+
+
 def copy_data():
     paste_history.append(pyperclip.paste())
     print(pyperclip.paste())
@@ -37,7 +48,7 @@ def copy_data():
         data_file.write(pyperclip.paste())
 
 
-hotkeys = {"<ctrl>+c": copy_data}
+hotkeys = {"<ctrl>+c": copy_data, "<ctrl>+<alt>+v": paste_all}
 paste_hotkeys = {f"<ctrl>+{x}": Paste(x).paste_data for x in range(0, 10)}
 hotkeys.update(paste_hotkeys)
 with keyboard.GlobalHotKeys(hotkeys) as h:
