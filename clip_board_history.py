@@ -47,8 +47,11 @@ def copy_data():
         data_file.write("\n")
         data_file.write(pyperclip.paste())
 
+def clear_clipboard():
+    paste_history = []
 
-hotkeys = {"<ctrl>+c": copy_data, "<ctrl>+<alt>+v": paste_all}
+
+hotkeys = {"<ctrl>+c": copy_data, "<ctrl>+<alt>+v": paste_all, "<ctrl>+<alt>+0":clear_clipboard}
 paste_hotkeys = {f"<ctrl>+{x}": Paste(x).paste_data for x in range(0, 10)}
 hotkeys.update(paste_hotkeys)
 with keyboard.GlobalHotKeys(hotkeys) as h:
