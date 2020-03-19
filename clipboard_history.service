@@ -1,0 +1,21 @@
+[Unit]
+Description=ClipBoard History Service
+After=multi-user.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "/home/nishit/Code/Personal/python_projects/clipboard_history/venv/bin/python /home/nishit/Code/Personal/python_projects/clipboard_history/clip_board_history.py"
+StandardInput=tty-force
+Environment=PYTHONUNBUFFERED=1
+Environment=DISPLAY=:0
+[Install]
+WantedBy=multi-user.target
+
+
+target
+target
+target
+target
+
+
